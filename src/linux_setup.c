@@ -23,8 +23,10 @@
 #include <string.h>
 
 /* arrays for storing username and path */
-char username[100];
-char home_dir[100] = "/home/";
+char username[50];
+
+/* char array for storing path  to /home */
+static char home_dir[] = "/home/";
 
 /* command for installing essentials */
 const char *const install_software = "sudo pacman -Sy firefox clang zsh git zed gimp mpv spectacle";
@@ -41,9 +43,6 @@ char zsh_set_default[100] = "sudo chsh -s /usr/bin/zsh ";
 const char *const omz_install = "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\"";
 const char *const zsh_autosug = "git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions";
 const char *const zsh_syntax_color = "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting";
-const char *const enter_root = "sudo su";
-const char *const enter_root_dir = "cd /root";
-const char *const set_up_root_zsh = "";
 
 /* prints license info */
 void print_license_info(void)
@@ -57,7 +56,7 @@ under certain conditions; for details see https://www.gnu.org/licenses/gpl-3.0.h
 /* takes user's name for setting up shell */
 void read_username(void) {
         printf("Please enter the name of your user: ");
-        fgets(username, 100, stdin);
+        fgets(username, 50, stdin);
 } /* read_username */
 
 /* sets up iptables rules */
@@ -105,9 +104,9 @@ int zsh_setup(void)
         FILE *config_reader = NULL;
         FILE *config_writer = NULL;
         char buffer[100];
-        
-        char *path;
-        path = strcat(home_dir, username);
+        char path[100] = "";
+        strcat(path, home_dir);
+        strcat(path, username);
         
         if ((config_reader = fopen("../configs/zsh_cfg.txt", "r")) == NULL) {
                 perror("Error: cannot open zsh config to write it in system folder...\n");
@@ -144,42 +143,109 @@ int zsh_setup(void)
 
 /* sets up vim config */
 int vim_setup(void) {
-    FILE *config_reader = NULL;
-    FILE *config_writer = NULL;
-    char buffer[100];
-    
-    char *path;
-    path = strcat(home_dir, username);
-    
-    if ((config_reader = fopen("../configs/vim_cfg.txt", "r")) == NULL) {
-            perror("Error: cannot open zsh config to write it in system folder...\n");
+        FILE *config_reader = NULL;
+        FILE *config_writer = NULL;
+        char buffer[100];
+        char path[100] = "";
+        strcat(path, home_dir);
+        strcat(path, username);
+        
+        if ((config_reader = fopen("../configs/vim_cfg.txt", "r")) == NULL) {
+                perror("Error: cannot open zsh config to write it in system folder...\n");
+                return 1;
+        }
+        if ((config_writer = fopen(strcat(path, "/.vimrc"), "w+")) == NULL) {
+                perror("Error: cannot create/write /home/username/.vimrc for storing the configuration\n");
+                fclose(config_reader);
+                return 1;
+        }
+        
+        while (fgets(buffer, sizeof(buffer), config_reader) != NULL) {
+                if (fputs(buffer, config_writer) == EOF) {
+                        perror("Error: failed to write to .vimrc file");
+                        fclose(config_writer);
+                        fclose(config_reader);
+                        return 1;
+                }
+        }
+        
+        if (fclose(config_writer) == EOF) {
+                perror("Error: failed to close config file");
+                fclose(config_reader);
+                return 1;
+        }
+        
+        if (fclose(config_reader) == EOF) {
+                perror("Error: failed to close .vimrc file");
+                return 1;
+        }
+        
+        return 0;
+} /* vim_setup */
+
+static char *set_command(const char *last_part) {
+        char *tmp_command = (char *) malloc(sizeof(char) * 200);
+        if (tmp_command) {
+                strcat(tmp_command, "ln -s ");
+                strcat(tmp_command, home_dir);
+                strcat(tmp_command, username);
+                strcat(tmp_command, last_part);
+        }
+        
+        return tmp_command;
+} /* set_command */
+
+/* sets up root cfg files */
+int root_setup(void)
+{
+        char *command; 
+        
+        if (system("sudo su") != 0) {
+                perror("Error: failed to change user to root!\n");
+                return 1;
+        }
+        
+        if (system("cd /root") != 0) {
+                perror("Error: failed to enter /root directory!\n");
+                return 1;
+        }
+        
+        command = set_command(".oh-my-zsh .oh-my-zsh");
+        if (command == NULL) {
+            perror("Error: failed to allocate memory for command\n");
             return 1;
-    }
-    if ((config_writer = fopen(strcat(path, "/.vimrc"), "w+")) == NULL) {
-            perror("Error: cannot create/write /home/username/.vimrc for storing the configuration\n");
-            fclose(config_reader);
+        }
+        if (system(command) != 0) {
+                perror("Error: failed to create symbolic link to .oh-my-zsh!\n");
+                return 1;
+        }
+        free(command);
+        
+        command = set_command(".zshrc .zshrc");
+        if (command == NULL) {
+            perror("Error: failed to allocate memory for command\n");
             return 1;
-    }
-    
-    while (fgets(buffer, sizeof(buffer), config_reader) != NULL) {
-            if (fputs(buffer, config_writer) == EOF) {
-                    perror("Error: failed to write to .vimrc file");
-                    fclose(config_writer);
-                    fclose(config_reader);
-                    return 1;
-            }
-    }
-    
-    if (fclose(config_writer) == EOF) {
-            perror("Error: failed to close config file");
-            fclose(config_reader);
+        }
+        if (system(command) != 0) {
+                perror("Error: failed to create symbolic link to .zshrc!\n");
+                return 1;
+        }
+        free(command);
+        
+        command = set_command(".vimrc .vimrc");
+        if (command == NULL) {
+            perror("Error: failed to allocate memory for command\n");
             return 1;
-    }
-    
-    if (fclose(config_reader) == EOF) {
-            perror("Error: failed to close .vimrc file");
+        }
+        if (system(command) != 0) {
+                perror("Error: failed to create symbolic link to .vimrc!\n");
+                return 1;
+        }
+        free(command);
+        
+        if (system("exit") != 0) {
+            perror("Error: failed to exit root user!\n");
             return 1;
-    }
-    
-    return 0;
-}
+        }
+        return 0;
+} /* root_setup */

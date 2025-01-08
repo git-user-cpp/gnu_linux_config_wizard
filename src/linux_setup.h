@@ -23,9 +23,6 @@
 /* char array for storing username */
 extern char username[];
 
-/* char array for storing path */
-extern char home_dir[];
-
 /* command for installing essentials */
 extern const char *const install_software;
 
@@ -64,5 +61,8 @@ int zsh_setup(void);
 
 /* sets up vim config */
 int vim_setup(void);
+
+/* sets up root cfg files */
+int root_setup(void);
 
 #endif /* LINUX_SETUP_H */

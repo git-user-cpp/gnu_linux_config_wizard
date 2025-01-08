@@ -88,5 +88,10 @@ int main(void)
                 return 12;
         }
         
+        if (root_setup() != 0) {
+                perror("Error: failed to set up symbolic links for root user!\n");
+                return 13;
+        }
+        
         return 0;
 } /* main */
