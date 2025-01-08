@@ -12,7 +12,8 @@ This document outlines the preferred coding style for the Linux kernel. Followin
 
 .. code-block:: c
 
-  void do_something(void) {
+  void do_something(void) 
+  {
           do_anything();
   }
 
