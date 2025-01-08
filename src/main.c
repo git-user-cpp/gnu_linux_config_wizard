@@ -22,50 +22,51 @@
 #include <string.h>
 #include "linux_setup.h"
 
-int main(void) {
-    /* prints license info */
-    print_license_info();
+int main(void)
+{
+        /* prints license info */
+        print_license_info();
+        
+        /* takes user's name for setting up shell */
+        char username[50];
+        printf("Please enter the name of your user: ");
+        fgets(username, 50, stdin);
+        
+        /* installs essential software */
+        if (system(install_software) != 0) {
+                perror("Error: failed to install essential software!\n");
+                return 1;
+        }
+        
+        /* sets up zsh as default shell for root */
+        if (system(zsh_set_default) != 0) {
+                perror("Error: failed to set zsh as default shell for root\n");
+                return 2;
+        }
+        
+        /* sets up zsh as default shell for user */
+        if (system(strcat(zsh_set_default, username)) != 0) {
+                fprintf(stderr, "Error: failed to set zsh as default shell for user %s\n", username);
+                return 3;
+        }
+        
+        /* installs oh-my-zsh */
+        if (system(omz_install) != 0) {
+                perror("Error: failed to install oh-my-zsh\n");
+                return 4;
+        }
+        
+        /* installs zsh-autosuggestions */
+        if (system(zsh_autosug) != 0) {
+                perror("Error: failed to install zsh-autosuggestions\n");
+                return 5;
+        }
+        
+        /* installs zsh-syntax-highlighting */
+        if (system(zsh_syntax_color) != 0) {
+                perror("Error: failed to install zsh syntax-highliting\n");
+                return 6;
+        }
     
-    /* takes user's name for setting up shell */
-    char username[50];
-    printf("Please enter the name of your user: ");
-    fgets(username, 50, stdin);
-    
-    /* installs essential software */
-    if (system(install_software) != 0) {
-        perror("Error: failed to install essential software!\n");
-        return 1;
-    }
-    
-    /* sets up zsh as default shell for root */
-    if (system(zsh_set_default) != 0) {
-        perror("Error: failed to set zsh as default shell for root\n");
-        return 2;
-    }
-    
-    /* sets up zsh as default shell for user */
-    if (system(strcat(zsh_set_default, username)) != 0) {
-        fprintf(stderr, "Error: failed to set zsh as default shell for user %s\n", username);
-        return 3;
-    }
-    
-    /* installs oh-my-zsh */
-    if (system(omz_install) != 0) {
-        perror("Error: failed to install oh-my-zsh\n");
-        return 4;
-    }
-    
-    /* installs zsh-autosuggestions */
-    if (system(zsh_autosug) != 0) {
-        perror("Error: failed to install zsh-autosuggestions\n");
-        return 5;
-    }
-    
-    /* installs zsh-syntax-highlighting */
-    if (system(zsh_syntax_color) != 0) {
-        perror("Error: failed to install zsh syntax-highliting\n");
-        return 6;
-    }
-
-    return 0;
-}
+        return 0;
+} /* main */
