@@ -43,39 +43,50 @@ int main(void)
                 return 3;
         }
         
-        iptables_setup();
+        if (iptables_setup() != 0) {
+                perror("Error: failed to set up iptables!\n");
+                return 4;
+        }
         
         if (system(setperms_iptables) != 0) {
                 perror("Error: failed to change permissions for /etc/iptables/iptables.rules\n");
-                return 4;
+                return 5;
+        }
+        
+        if (vim_setup() != 0) {
+                perror("Error: failed to set up vim!\n");
+                return 6;
         }
         
         if (system(zsh_set_default) != 0) {
                 perror("Error: failed to set zsh as default shell for root\n");
-                return 5;
+                return 7;
         }
         
         if (system(strcat(zsh_set_default, username)) != 0) {
                 fprintf(stderr, "Error: failed to set zsh as default shell for user %s\n", username);
-                return 6;
+                return 8;
         }
         
         if (system(omz_install) != 0) {
                 perror("Error: failed to install oh-my-zsh\n");
-                return 7;
+                return 9;
         }
         
         if (system(zsh_autosug) != 0) {
                 perror("Error: failed to install zsh-autosuggestions\n");
-                return 8;
+                return 10;
         }
         
         if (system(zsh_syntax_color) != 0) {
                 perror("Error: failed to install zsh syntax-highliting\n");
-                return 9;
+                return 11;
         }
         
-        zsh_setup();
+        if (zsh_setup() != 0) {
+                perror("Error: failed to set up zsh!\n");
+                return 12;
+        }
         
         return 0;
 } /* main */

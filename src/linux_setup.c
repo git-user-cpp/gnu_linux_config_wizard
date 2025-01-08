@@ -61,7 +61,7 @@ void read_username(void) {
 } /* read_username */
 
 /* sets up iptables rules */
-void iptables_setup(void)
+int iptables_setup(void)
 {
         FILE *rules_reader = NULL;
         FILE *rules_writer = NULL;
@@ -69,12 +69,12 @@ void iptables_setup(void)
         
         if ((rules_reader = fopen("../configs/iptables_cfg.txt", "r")) == NULL) {
                 perror("Error: cannot open iptable config to write it in system folder...\n");
-                exit(1);
+                return 1;
         }
         if ((rules_writer = fopen("/etc/iptables/iptables.rules", "w+")) == NULL) {
                 perror("Error: cannot create /etc/iptables/iptables.rules for storing the rules\n");
                 fclose(rules_reader);
-                exit(2);
+                return 1;
         }
         
         while (fgets(buffer, sizeof(buffer), rules_reader) != NULL) {
@@ -82,23 +82,25 @@ void iptables_setup(void)
                         perror("Error: failed to write to iptables rules file");
                         fclose(rules_writer);
                         fclose(rules_reader);
-                        exit(3);
+                        return 1;
                 }
         }
         
         if (fclose(rules_writer) == EOF) {
                 perror("Error: failed to close iptables rules file");
-                fclose(rules_reader); exit(4);
+                return 1;
         }
         
         if (fclose(rules_reader) == EOF) {
                 perror("Error: failed to close iptable config file");
-                exit(5);
+                return 1;
         }
+        
+        return 0;
 } /* iptables_setup */
 
 /* sets up zsh config */
-void zsh_setup(void)
+int zsh_setup(void)
 {
         FILE *config_reader = NULL;
         FILE *config_writer = NULL;
@@ -109,12 +111,12 @@ void zsh_setup(void)
         
         if ((config_reader = fopen("../configs/zsh_cfg.txt", "r")) == NULL) {
                 perror("Error: cannot open zsh config to write it in system folder...\n");
-                exit(1);
+                return 1;
         }
         if ((config_writer = fopen(strcat(path, "/.zshrc"), "w+")) == NULL) {
                 perror("Error: cannot create/write /home/username/.zshrc for storing the configuration\n");
                 fclose(config_reader);
-                exit(2);
+                return 1;
         }
         
         while (fgets(buffer, sizeof(buffer), config_reader) != NULL) {
@@ -122,17 +124,62 @@ void zsh_setup(void)
                         perror("Error: failed to write to .zshrc file");
                         fclose(config_writer);
                         fclose(config_reader);
-                        exit(3);
+                        return 1;
                 }
         }
         
         if (fclose(config_writer) == EOF) {
                 perror("Error: failed to close config file");
-                fclose(config_reader); exit(4);
+                fclose(config_reader);
+                return 1;
         }
         
         if (fclose(config_reader) == EOF) {
                 perror("Error: failed to close .zshrc file");
-                exit(5);
+                return 1;
         }
+        
+        return 0;
 } /* zsh_setup */
+
+/* sets up vim config */
+int vim_setup(void) {
+    FILE *config_reader = NULL;
+    FILE *config_writer = NULL;
+    char buffer[100];
+    
+    char *path;
+    path = strcat(home_dir, username);
+    
+    if ((config_reader = fopen("../configs/vim_cfg.txt", "r")) == NULL) {
+            perror("Error: cannot open zsh config to write it in system folder...\n");
+            return 1;
+    }
+    if ((config_writer = fopen(strcat(path, "/.vimrc"), "w+")) == NULL) {
+            perror("Error: cannot create/write /home/username/.vimrc for storing the configuration\n");
+            fclose(config_reader);
+            return 1;
+    }
+    
+    while (fgets(buffer, sizeof(buffer), config_reader) != NULL) {
+            if (fputs(buffer, config_writer) == EOF) {
+                    perror("Error: failed to write to .vimrc file");
+                    fclose(config_writer);
+                    fclose(config_reader);
+                    return 1;
+            }
+    }
+    
+    if (fclose(config_writer) == EOF) {
+            perror("Error: failed to close config file");
+            fclose(config_reader);
+            return 1;
+    }
+    
+    if (fclose(config_reader) == EOF) {
+            perror("Error: failed to close .vimrc file");
+            return 1;
+    }
+    
+    return 0;
+}

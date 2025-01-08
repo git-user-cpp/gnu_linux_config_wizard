@@ -57,9 +57,12 @@ void read_username(void);
 void print_license_info(void);
 
 /* sets up iptables rules */
-void iptables_setup(void);
+int iptables_setup(void);
 
 /* sets up zsh config and plugins */
-void zsh_setup(void);
+int zsh_setup(void);
+
+/* sets up vim config */
+int vim_setup(void);
 
 #endif /* LINUX_SETUP_H */
