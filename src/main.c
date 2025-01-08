@@ -24,61 +24,58 @@
 
 int main(void)
 {
-        /* prints license info */
         print_license_info();
         
-        /* takes user's name for setting up shell */
-        char username[50];
-        printf("Please enter the name of your user: ");
-        fgets(username, 50, stdin);
+        read_username();
         
-        /* installs essential software */
         if (system(install_software) != 0) {
                 perror("Error: failed to install essential software!\n");
                 return 1;
         }
         
-        /* removes /etc/iptables */
         if (system(clear_iptables) != 0) {
                 perror("Error: failed to clear old iptables directory!\n");
                 return 2;
         }
         
-        /* creates empty /etc/iptables */
         if (system(setdir_iptables) != 0) {
                 perror("Error: failed to create new directory for iptables!\n");
                 return 3;
         }
         
-        /* sets up zsh as default shell for root */
-        if (system(zsh_set_default) != 0) {
-                perror("Error: failed to set zsh as default shell for root\n");
-                return 2;
-        }
+        iptables_setup();
         
-        /* sets up zsh as default shell for user */
-        if (system(strcat(zsh_set_default, username)) != 0) {
-                fprintf(stderr, "Error: failed to set zsh as default shell for user %s\n", username);
-                return 3;
-        }
-        
-        /* installs oh-my-zsh */
-        if (system(omz_install) != 0) {
-                perror("Error: failed to install oh-my-zsh\n");
+        if (system(setperms_iptables) != 0) {
+                perror("Error: failed to change permissions for /etc/iptables/iptables.rules\n");
                 return 4;
         }
         
-        /* installs zsh-autosuggestions */
-        if (system(zsh_autosug) != 0) {
-                perror("Error: failed to install zsh-autosuggestions\n");
+        if (system(zsh_set_default) != 0) {
+                perror("Error: failed to set zsh as default shell for root\n");
                 return 5;
         }
         
-        /* installs zsh-syntax-highlighting */
-        if (system(zsh_syntax_color) != 0) {
-                perror("Error: failed to install zsh syntax-highliting\n");
+        if (system(strcat(zsh_set_default, username)) != 0) {
+                fprintf(stderr, "Error: failed to set zsh as default shell for user %s\n", username);
                 return 6;
         }
-    
+        
+        if (system(omz_install) != 0) {
+                perror("Error: failed to install oh-my-zsh\n");
+                return 7;
+        }
+        
+        if (system(zsh_autosug) != 0) {
+                perror("Error: failed to install zsh-autosuggestions\n");
+                return 8;
+        }
+        
+        if (system(zsh_syntax_color) != 0) {
+                perror("Error: failed to install zsh syntax-highliting\n");
+                return 9;
+        }
+        
+        zsh_setup();
+        
         return 0;
 } /* main */
