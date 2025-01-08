@@ -13,16 +13,22 @@ The ultimate post-installation setup assistant for GNU/Linux, streamlining your 
 
 ---
 To build the program create and enter the build/ directory
+    ```
     mkdir build
     cd build
+    ```
 Run cmake command with mode release:
+    ```
     cmake -DCMAKE_BUILD_TYPE=Release ..
     make
     ./gnulinwiz
+    ```
 If you need to use debugger use:
+    ```
     cmake -DCMAKE_BUILD_TYPE=Debug ..
     make
     gdb gnulinwiz
+    ```
 ---
 
 ## ⚠️ LICENSE ⚠️
