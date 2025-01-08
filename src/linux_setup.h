@@ -23,6 +23,10 @@
 /* command for installing essentials */
 extern const char *const install_software;
 
+/* commands for setting up iptables directory */
+extern const char *const clear_iptables;
+extern const char *const setdir_iptables;
+
 /* command for setting zsh as default shell for root and user */
 extern char zsh_set_default[];
 
@@ -33,5 +37,7 @@ extern const char *const zsh_syntax_color;
 
 /* prints license info */
 void print_license_info(void);
+/* sets up iptables rules */
+void iptables_setup(void);
 
 #endif /* LINUX_SETUP_H */

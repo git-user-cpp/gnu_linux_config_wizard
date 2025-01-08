@@ -23,6 +23,10 @@
 /* command for installing essentials */
 const char *const install_software = "sudo pacman -Sy firefox clang zsh git zed gimp mpv spectacle";
 
+/* commands for setting up iptables directory */
+const char *const clear_iptables = "sudo rm -rf /etc/iptables";
+const char *const setdir_iptables = "sudo mkdir /etc/iptables";
+
 /* command for setting zsh as default shell for root and user */
 char zsh_set_default[100] = "sudo chsh -s /usr/bin/zsh ";
 
@@ -40,3 +44,8 @@ This program comes with ABSOLUTELY NO WARRANTY; for details see https://www.gnu.
 This is free software, and you are welcome to redistribute it\n\
 under certain conditions; for details see https://www.gnu.org/licenses/gpl-3.0.html/\n\n");
 } /* print_license_info */
+
+void iptables_setup(void)
+{
+    
+}

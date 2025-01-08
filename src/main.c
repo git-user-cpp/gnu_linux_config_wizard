@@ -38,6 +38,18 @@ int main(void)
                 return 1;
         }
         
+        /* removes /etc/iptables */
+        if (system(clear_iptables) != 0) {
+                perror("Error: failed to clear old iptables directory!\n");
+                return 2;
+        }
+        
+        /* creates empty /etc/iptables */
+        if (system(setdir_iptables) != 0) {
+                perror("Error: failed to create new directory for iptables!\n");
+                return 3;
+        }
+        
         /* sets up zsh as default shell for root */
         if (system(zsh_set_default) != 0) {
                 perror("Error: failed to set zsh as default shell for root\n");
