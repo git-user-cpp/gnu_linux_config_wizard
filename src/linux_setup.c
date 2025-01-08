@@ -40,9 +40,9 @@ const char *const setperms_iptables = "sudo chmod 600 /etc/iptables/iptables.rul
 char zsh_set_default[100] = "sudo chsh -s /usr/bin/zsh ";
 
 /* commands for installing oh-my-zsh, zsh-autosuggestions and zsh-syntax-highlighting */
-const char *const omz_install = "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\"";
-const char *const zsh_autosug = "git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions";
-const char *const zsh_syntax_color = "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting";
+const char *const omz_install = "su andy -c 'sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\"'";
+const char *const zsh_autosug = "su andy -c 'git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions'";
+const char *const zsh_syntax_color = "su andy -c 'git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting'";
 
 /* prints license info */
 void print_license_info(void)
@@ -53,46 +53,27 @@ This is free software, and you are welcome to redistribute it\n\
 under certain conditions; for details see https://www.gnu.org/licenses/gpl-3.0.html/\n\n");
 } /* print_license_info */
 
+static void remove_newline(char *str) {
+        while (*str != '\0') {
+                if (*str == '\n')
+                        *str = '\0';
+                str++;
+        }
+}
+
 /* takes user's name for setting up shell */
 void read_username(void) {
         printf("Please enter the name of your user: ");
         fgets(username, 50, stdin);
+        remove_newline(username);
 } /* read_username */
 
 /* sets up iptables rules */
 int iptables_setup(void)
 {
-        FILE *rules_reader = NULL;
-        FILE *rules_writer = NULL;
-        char buffer[100];
-        
-        if ((rules_reader = fopen("../configs/iptables_cfg.txt", "r")) == NULL) {
-                perror("Error: cannot open iptable config to write it in system folder...\n");
-                return 1;
-        }
-        if ((rules_writer = fopen("/etc/iptables/iptables.rules", "w+")) == NULL) {
-                perror("Error: cannot create /etc/iptables/iptables.rules for storing the rules\n");
-                fclose(rules_reader);
-                return 1;
-        }
-        
-        while (fgets(buffer, sizeof(buffer), rules_reader) != NULL) {
-                if (fputs(buffer, rules_writer) == EOF) {
-                        perror("Error: failed to write to iptables rules file");
-                        fclose(rules_writer);
-                        fclose(rules_reader);
-                        return 1;
-                }
-        }
-        
-        if (fclose(rules_writer) == EOF) {
-                perror("Error: failed to close iptables rules file");
-                return 1;
-        }
-        
-        if (fclose(rules_reader) == EOF) {
-                perror("Error: failed to close iptable config file");
-                return 1;
+        if (system("sudo cp ../configs/iptables.rules /etc/iptables") != 0) {
+            perror("Error: cannot move iptables.rules file\n");
+            return 1;
         }
         
         return 0;
@@ -101,41 +82,14 @@ int iptables_setup(void)
 /* sets up zsh config */
 int zsh_setup(void)
 {
-        FILE *config_reader = NULL;
-        FILE *config_writer = NULL;
-        char buffer[100];
-        char path[100] = "";
-        strcat(path, home_dir);
-        strcat(path, username);
+        char command[100] = "";
+        strcat(command, "sudo cp ../configs/.zshrc ");
+        strcat(command, home_dir);
+        strcat(command, username);
         
-        if ((config_reader = fopen("../configs/zsh_cfg.txt", "r")) == NULL) {
-                perror("Error: cannot open zsh config to write it in system folder...\n");
-                return 1;
-        }
-        if ((config_writer = fopen(strcat(path, "/.zshrc"), "w+")) == NULL) {
-                perror("Error: cannot create/write /home/username/.zshrc for storing the configuration\n");
-                fclose(config_reader);
-                return 1;
-        }
-        
-        while (fgets(buffer, sizeof(buffer), config_reader) != NULL) {
-                if (fputs(buffer, config_writer) == EOF) {
-                        perror("Error: failed to write to .zshrc file");
-                        fclose(config_writer);
-                        fclose(config_reader);
-                        return 1;
-                }
-        }
-        
-        if (fclose(config_writer) == EOF) {
-                perror("Error: failed to close config file");
-                fclose(config_reader);
-                return 1;
-        }
-        
-        if (fclose(config_reader) == EOF) {
-                perror("Error: failed to close .zshrc file");
-                return 1;
+        if (system(command) != 0) {
+            fprintf(stderr, "Error: cannot copy .zshrc to /home/%s", username);
+            return 1;
         }
         
         return 0;
@@ -143,41 +97,14 @@ int zsh_setup(void)
 
 /* sets up vim config */
 int vim_setup(void) {
-        FILE *config_reader = NULL;
-        FILE *config_writer = NULL;
-        char buffer[100];
-        char path[100] = "";
-        strcat(path, home_dir);
-        strcat(path, username);
+        char command[100] = "";
+        strcat(command, "sudo cp ../configs/.vimrc ");
+        strcat(command, home_dir);
+        strcat(command, username);
         
-        if ((config_reader = fopen("../configs/vim_cfg.txt", "r")) == NULL) {
-                perror("Error: cannot open zsh config to write it in system folder...\n");
-                return 1;
-        }
-        if ((config_writer = fopen(strcat(path, "/.vimrc"), "w+")) == NULL) {
-                perror("Error: cannot create/write /home/username/.vimrc for storing the configuration\n");
-                fclose(config_reader);
-                return 1;
-        }
-        
-        while (fgets(buffer, sizeof(buffer), config_reader) != NULL) {
-                if (fputs(buffer, config_writer) == EOF) {
-                        perror("Error: failed to write to .vimrc file");
-                        fclose(config_writer);
-                        fclose(config_reader);
-                        return 1;
-                }
-        }
-        
-        if (fclose(config_writer) == EOF) {
-                perror("Error: failed to close config file");
-                fclose(config_reader);
-                return 1;
-        }
-        
-        if (fclose(config_reader) == EOF) {
-                perror("Error: failed to close .vimrc file");
-                return 1;
+        if (system(command) != 0) {
+            fprintf(stderr, "Error: cannot copy .zshrc to /home/%s", username);
+            return 1;
         }
         
         return 0;
@@ -185,8 +112,9 @@ int vim_setup(void) {
 
 static char *set_command(const char *last_part) {
         char *tmp_command = (char *) malloc(sizeof(char) * 200);
-        if (tmp_command) {
-                strcat(tmp_command, "ln -s ");
+        if (tmp_command != NULL) {
+                tmp_command[0] = '\0';
+                strcat(tmp_command, "sudo ln -s ");
                 strcat(tmp_command, home_dir);
                 strcat(tmp_command, username);
                 strcat(tmp_command, last_part);
@@ -198,54 +126,43 @@ static char *set_command(const char *last_part) {
 /* sets up root cfg files */
 int root_setup(void)
 {
-        char *command; 
+        char *command;
         
-        if (system("sudo su") != 0) {
-                perror("Error: failed to change user to root!\n");
-                return 1;
-        }
-        
-        if (system("cd /root") != 0) {
-                perror("Error: failed to enter /root directory!\n");
-                return 1;
-        }
-        
-        command = set_command(".oh-my-zsh .oh-my-zsh");
+        command = set_command("/.oh-my-zsh /root/.oh-my-zsh");
         if (command == NULL) {
             perror("Error: failed to allocate memory for command\n");
             return 1;
         }
         if (system(command) != 0) {
                 perror("Error: failed to create symbolic link to .oh-my-zsh!\n");
+                free(command);
                 return 1;
         }
         free(command);
         
-        command = set_command(".zshrc .zshrc");
+        command = set_command("/.zshrc /root/.zshrc");
         if (command == NULL) {
             perror("Error: failed to allocate memory for command\n");
             return 1;
         }
         if (system(command) != 0) {
                 perror("Error: failed to create symbolic link to .zshrc!\n");
+                free(command);
                 return 1;
         }
         free(command);
         
-        command = set_command(".vimrc .vimrc");
+        command = set_command("/.vimrc /root/.vimrc");
         if (command == NULL) {
             perror("Error: failed to allocate memory for command\n");
             return 1;
         }
         if (system(command) != 0) {
                 perror("Error: failed to create symbolic link to .vimrc!\n");
+                free(command);
                 return 1;
         }
         free(command);
         
-        if (system("exit") != 0) {
-            perror("Error: failed to exit root user!\n");
-            return 1;
-        }
         return 0;
 } /* root_setup */
