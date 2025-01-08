@@ -93,5 +93,7 @@ int main(void)
                 return 13;
         }
         
+        printf("Your GNU/Linux system is all set! No errors were reported.\n");
+        
         return 0;
 } /* main */
