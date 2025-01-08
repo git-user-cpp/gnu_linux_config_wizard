@@ -14,6 +14,7 @@ add_compile_options(
     -Wall
     -Wextra
     -std=gnu11
+    -march=x86-64
     -Wconversion
     -Wshadow
     -Wstrict-prototypes
