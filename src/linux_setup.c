@@ -53,7 +53,8 @@ This is free software, and you are welcome to redistribute it\n\
 under certain conditions; for details see https://www.gnu.org/licenses/gpl-3.0.html/\n\n");
 } /* print_license_info */
 
-static void remove_newline(char *str) {
+static void remove_newline(char *str)
+{
         while (*str != '\0') {
                 if (*str == '\n')
                         *str = '\0';
@@ -62,7 +63,8 @@ static void remove_newline(char *str) {
 }
 
 /* takes user's name for setting up shell */
-void read_username(void) {
+void username_setup(void)
+{
         printf("Please enter the name of your user: ");
         fgets(username, 50, stdin);
         remove_newline(username);
@@ -72,8 +74,8 @@ void read_username(void) {
 int iptables_setup(void)
 {
         if (system("sudo cp ../configs/iptables.rules /etc/iptables") != 0) {
-            perror("Error: cannot move iptables.rules file\n");
-            return 1;
+                perror("Error: cannot move iptables.rules file\n");
+                return 1;
         }
         
         return 0;
@@ -88,29 +90,31 @@ int zsh_setup(void)
         strcat(command, username);
         
         if (system(command) != 0) {
-            fprintf(stderr, "Error: cannot copy .zshrc to /home/%s", username);
-            return 1;
+                fprintf(stderr, "Error: cannot copy .zshrc to /home/%s", username);
+                return 1;
         }
         
         return 0;
 } /* zsh_setup */
 
 /* sets up vim config */
-int vim_setup(void) {
+int vim_setup(void)
+{
         char command[100] = "";
         strcat(command, "sudo cp ../configs/.vimrc ");
         strcat(command, home_dir);
         strcat(command, username);
         
         if (system(command) != 0) {
-            fprintf(stderr, "Error: cannot copy .zshrc to /home/%s", username);
-            return 1;
+                fprintf(stderr, "Error: cannot copy .zshrc to /home/%s", username);
+                return 1;
         }
         
         return 0;
 } /* vim_setup */
 
-static char *set_command(const char *last_part) {
+static char *set_command(const char *last_part)
+{
         char *tmp_command = (char *) malloc(sizeof(char) * 200);
         if (tmp_command != NULL) {
                 tmp_command[0] = '\0';
@@ -130,8 +134,8 @@ int root_setup(void)
         
         command = set_command("/.oh-my-zsh /root/.oh-my-zsh");
         if (command == NULL) {
-            perror("Error: failed to allocate memory for command\n");
-            return 1;
+                perror("Error: failed to allocate memory for command\n");
+                return 1;
         }
         if (system(command) != 0) {
                 perror("Error: failed to create symbolic link to .oh-my-zsh!\n");
@@ -142,8 +146,8 @@ int root_setup(void)
         
         command = set_command("/.zshrc /root/.zshrc");
         if (command == NULL) {
-            perror("Error: failed to allocate memory for command\n");
-            return 1;
+                perror("Error: failed to allocate memory for command\n");
+                return 1;
         }
         if (system(command) != 0) {
                 perror("Error: failed to create symbolic link to .zshrc!\n");
@@ -154,8 +158,8 @@ int root_setup(void)
         
         command = set_command("/.vimrc /root/.vimrc");
         if (command == NULL) {
-            perror("Error: failed to allocate memory for command\n");
-            return 1;
+                perror("Error: failed to allocate memory for command\n");
+                return 1;
         }
         if (system(command) != 0) {
                 perror("Error: failed to create symbolic link to .vimrc!\n");
@@ -166,3 +170,13 @@ int root_setup(void)
         
         return 0;
 } /* root_setup */
+
+int zram_swap_setup(void)
+{
+        if (system("sudo cp ../configs/zram-generator.conf /etc/systemd") != 0) {
+                perror("Error: cannot move iptables.rules file\n");
+                return 1;
+        }
+        
+        return 0;
+} /* zram_swap_setup */

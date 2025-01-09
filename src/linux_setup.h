@@ -48,7 +48,7 @@ extern const char *const zsh_autosug;
 extern const char *const zsh_syntax_color;
 
 /* reads system's username */
-void read_username(void);
+void username_setup(void);
 
 /* prints license info */
 void print_license_info(void);
@@ -64,5 +64,8 @@ int vim_setup(void);
 
 /* sets up root cfg files */
 int root_setup(void);
+
+/* sets up zram swap */
+int zram_swap_setup(void);
 
 #endif /* LINUX_SETUP_H */
