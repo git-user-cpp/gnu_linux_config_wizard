@@ -60,7 +60,7 @@ static void remove_newline(char *str)
                         *str = '\0';
                 str++;
         }
-}
+} /* remove_newline */
 
 /* takes user's name for setting up shell */
 void username_setup(void)
