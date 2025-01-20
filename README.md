@@ -14,6 +14,7 @@ The ultimate post-installation setup assistant for GNU/Linux, streamlining your 
 ---
 
 To use the program download the latest version here: https://gitlab.com/git-user-cpp/gnu_linux_config_wizard/-/tree/main/releases?ref_type=heads
+
 Unpack the archive:
 ```
 tar -xzf gnu_linux_config_wizard_1_1_0.tar.gz
@@ -29,9 +30,11 @@ sudo ./gnulinwiz
 
 ---
 
+All set! Your GNU/Linux system is ready to use!
+
 ---
 
-To build the program create and enter the build/ directory
+If you want to build the program: create and enter the build/ directory
 ```
 mkdir build
 cd build
