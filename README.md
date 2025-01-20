@@ -12,6 +12,25 @@ The ultimate post-installation setup assistant for GNU/Linux, streamlining your 
 ![GitLab License](https://img.shields.io/gitlab/license/git-user-cpp%2Fgnu_linux_config_wizard?style=flat-square&logo=gitlab)
 
 ---
+
+To use the program download the latest version here: https://gitlab.com/git-user-cpp/gnu_linux_config_wizard/-/tree/main/releases?ref_type=heads
+Unpack the archive:
+```
+tar -xzf gnu_linux_config_wizard_1_1_0.tar.gz
+```
+Then enter the "program" directory:
+```
+cd gnu_linux_config_wizard_1_1_0/program
+```
+And finally run the program:
+```
+sudo ./gnulinwiz
+```
+
+---
+
+---
+
 To build the program create and enter the build/ directory
 ```
 mkdir build
@@ -29,6 +48,7 @@ cmake -DCMAKE_BUILD_TYPE=Debug ..
 make
 gdb gnulinwiz
 ```
+
 ---
 
 ## ⚠️ LICENSE ⚠️
