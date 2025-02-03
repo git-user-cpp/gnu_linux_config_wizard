@@ -16,6 +16,7 @@ set scrolloff=5
 set laststatus=2
 set textwidth=79
 set wrap
+set relativenumber
 
 if !has('gui_running')
 	set t_Co=256
